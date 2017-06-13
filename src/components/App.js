@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { BrowserRouter as Router } from 'react-router-dom';
 import 'whatwg-fetch';
 
@@ -96,7 +95,12 @@ class App extends Component {
 
 		let productDisplay;
 		if (this.state.productLoaded) {
-			productDisplay = <Product data={this.state.product} />;
+			productDisplay = (
+				<Product
+					data={this.state.product}
+					refreshProduct={this.updateProductFromServer}
+				/>
+			);
 		}
 
 		return (
