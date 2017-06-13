@@ -8,6 +8,26 @@ class Product extends Component {
 			editMode: false,
 			product: this.props.data,
 		};
+
+		this.handleProductNameChange = this.handleProductNameChange.bind(this);
+	}
+
+	reloadProductInfo() {
+		this.props.refreshProduct().then(
+			response => this.setState({
+				editMode: false,
+				product: response.data.product,
+			}),
+		);
+	}
+
+	handleProductNameChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				name: e.target.value,
+			},
+		});
 	}
 
 	render() {
@@ -16,9 +36,13 @@ class Product extends Component {
 
 		const productWindow = this.state.editMode ? (
 			<div className="p1">
-				<div>
-					<input type="text" value={this.state.product.name} />
-				</div>
+				<input
+					type="text"
+					value={this.state.product.name}
+					onChange={this.handleProductNameChange}
+				/>
+				<div>{description}</div>
+				<div>{JSON.stringify(data)}</div>
 			</div>
 		) : (
 			<div className="p1">
@@ -43,10 +67,8 @@ class Product extends Component {
 	}
 }
 Product.propTypes = {
-	data: PropTypes.shape(),
-};
-Product.defaultProps = {
-	data: Object.assign({}),
+	data: PropTypes.shape().isRequired,
+	refreshProduct: PropTypes.func.isRequired,
 };
 
 export default Product;

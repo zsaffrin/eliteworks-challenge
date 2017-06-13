@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import Promise from 'promise-polyfill';
 import 'whatwg-fetch';
 
 import credentials from '../config/credentials';
@@ -12,12 +13,15 @@ class App extends Component {
 	constructor() {
 		super();
 		this.state = {
+			apiKey: credentials.eliteworksApiKey,
 			isFetching: false,
 			fetchError: false,
 			message: '',
 			productLoaded: false,
 			product: {},
 		};
+
+		this.fetchProductFromServer = this.fetchProductFromServer.bind(this);
 	}
 
 	componentDidMount() {
@@ -52,9 +56,21 @@ class App extends Component {
 		}
 	}
 
-	updateProductFromServer() {
-		const url = `http://challenge.eliteworks.com/product?api_key=${credentials.eliteworksApiKey}`;
+	fetchProductFromServer() {
+		return new Promise((resolve, reject) => {
+			const url = `http://challenge.eliteworks.com/product?api_key=${this.state.apiKey}`;
 
+			window.fetch(url, { method: 'GET' }).then(
+				response => response.json(),
+			).then(
+				json => resolve(json),
+			).catch(
+				err => reject(err),
+			);
+		});
+	}
+
+	updateProductFromServer() {
 		this.setState({
 			isFetching: true,
 			fetchError: false,
@@ -63,12 +79,10 @@ class App extends Component {
 			product: Object.assign({}),
 		});
 
-		window.fetch(url, { method: 'GET' }).then(
-			response => response.json(),
-		).then(
+		this.fetchProductFromServer().then(
 			json => this.processFetchResponse(json),
 		).then(
-			() => this.setState({ isFetching: false }),
+			this.setState({ isFetching: false }),
 		);
 	}
 
@@ -98,7 +112,7 @@ class App extends Component {
 			productDisplay = (
 				<Product
 					data={this.state.product}
-					refreshProduct={this.updateProductFromServer}
+					refreshProduct={this.fetchProductFromServer}
 				/>
 			);
 		}
