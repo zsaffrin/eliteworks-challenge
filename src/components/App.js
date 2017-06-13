@@ -65,7 +65,7 @@ class App extends Component {
 			).then(
 				json => resolve(json),
 			).catch(
-				err => reject(err),
+				err => reject(new Error(err)),
 			);
 		});
 	}

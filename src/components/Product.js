@@ -9,7 +9,13 @@ class Product extends Component {
 			product: this.props.data,
 		};
 
+		this.enterEditMode = this.enterEditMode.bind(this);
 		this.handleProductNameChange = this.handleProductNameChange.bind(this);
+		this.reloadProductInfo = this.reloadProductInfo.bind(this);
+	}
+
+	enterEditMode() {
+		this.setState({ editMode: true });
 	}
 
 	reloadProductInfo() {
@@ -43,6 +49,9 @@ class Product extends Component {
 				/>
 				<div>{description}</div>
 				<div>{JSON.stringify(data)}</div>
+				<div>
+					<button onClick={this.reloadProductInfo}>Cancel</button>
+				</div>
 			</div>
 		) : (
 			<div className="p1">
@@ -51,6 +60,15 @@ class Product extends Component {
 				{JSON.stringify(data)}<br />
 			</div>
 		);
+
+		let editButton;
+		if (!this.state.editMode) {
+			editButton = (
+				<div>
+					<button onClick={this.enterEditMode}>Edit</button>
+				</div>
+			);
+		}
 
 		return (
 			<div className="m1 border p1">
@@ -62,6 +80,7 @@ class Product extends Component {
 					Fetched using API key {api_key}<br />
 					Last updated {updated_at}<br />
 				</div>
+				{editButton}
 			</div>
 		);
 	}
