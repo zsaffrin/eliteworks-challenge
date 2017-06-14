@@ -12,6 +12,7 @@ class Product extends Component {
 		this.enterEditMode = this.enterEditMode.bind(this);
 		this.handleProductNameChange = this.handleProductNameChange.bind(this);
 		this.reloadProductInfo = this.reloadProductInfo.bind(this);
+		this.saveProductChanges = this.reloadProductInfo.bind(this);
 	}
 
 	enterEditMode() {
@@ -36,22 +37,58 @@ class Product extends Component {
 		});
 	}
 
+	postDataToServer() {
+		return new Promise((resolve, reject) => {
+			const url = `http://challenge.eliteworks.com/product/set?api_key=${this.state.apiKey}`;
+			const { name, description } = this.state.product;
+			const data = JSON.stringify({ name, description });
+
+			window.fetch(url, {
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				method: 'POST',
+				body: data,
+			}).then(
+				response => response.json(),
+			).then(
+				json => resolve(json),
+			).catch(
+				err => reject(new Error(err)),
+			);
+		});
+	}
+
+	saveProductChanges(e) {
+		e.preventDefault();
+
+		this.postDataToServer().then(
+			(result) => {
+				console.info(result);
+			},
+		);
+	}
+
 	render() {
 		const { product_id, description, name, data, api_key, created_at,
 			updated_at } = this.state.product;
 
 		const productWindow = this.state.editMode ? (
 			<div className="p1">
-				<input
-					type="text"
-					value={this.state.product.name}
-					onChange={this.handleProductNameChange}
-				/>
-				<div>{description}</div>
-				<div>{JSON.stringify(data)}</div>
-				<div>
-					<button onClick={this.reloadProductInfo}>Cancel</button>
-				</div>
+				<form onSubmit={this.saveProductChanges}>
+					<input
+						type="text"
+						value={this.state.product.name}
+						onChange={this.handleProductNameChange}
+					/>
+					<div>{description}</div>
+					<div>{JSON.stringify(data)}</div>
+					<div>
+						<button type="submit">Save</button>
+						<button onClick={this.reloadProductInfo}>Cancel</button>
+					</div>
+				</form>
 			</div>
 		) : (
 			<div className="p1">
