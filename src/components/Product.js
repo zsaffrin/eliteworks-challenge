@@ -1,31 +1,97 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import Promise from 'promise-polyfill';
+import 'whatwg-fetch';
+
+import credentials from '../config/credentials';
+import Message from './Message';
 
 class Product extends Component {
-	constructor(props) {
-		super(props);
+	constructor() {
+		super();
 		this.state = {
+			apiKey: credentials.eliteworksApiKey,
 			editMode: false,
-			product: this.props.data,
+			fetchError: false,
+			isFetching: false,
+			message: '',
+			productLoaded: false,
+			product: { data: {} },
 		};
 
-		this.enterEditMode = this.enterEditMode.bind(this);
+		this.toggleEditMode = this.toggleEditMode.bind(this);
+		this.cancelEdits = this.cancelEdits.bind(this);
 		this.handleProductNameChange = this.handleProductNameChange.bind(this);
-		this.reloadProductInfo = this.reloadProductInfo.bind(this);
-		this.saveProductChanges = this.reloadProductInfo.bind(this);
+		this.handleProductDescriptionChange = this.handleProductDescriptionChange.bind(this);
+		this.handleProductSizeChange = this.handleProductSizeChange.bind(this);
+		this.handleProductImageUrlChange = this.handleProductImageUrlChange.bind(this);
+		this.handleProductFortificationsChange = this.handleProductFortificationsChange.bind(this);
+		this.handleEditFormSubmit = this.handleEditFormSubmit.bind(this);
 	}
 
-	enterEditMode() {
-		this.setState({ editMode: true });
+	componentDidMount() {
+		this.loadProductData();
 	}
 
-	reloadProductInfo() {
-		this.props.refreshProduct().then(
-			response => this.setState({
-				editMode: false,
-				product: response.data.product,
-			}),
-		);
+	getApiUrl(method) {
+		let url = 'http://challenge.eliteworks.com/product';
+		if (method === 'post') {
+			url += '/set';
+		}
+		url += `?api_key=${this.state.apiKey}`;
+		return url;
+	}
+
+	fetchProductDataFromServer() {
+		return new Promise((resolve, reject) => {
+			window.fetch(this.getApiUrl('get'), { method: 'GET' })
+				.then(response => response.json())
+				.then(json => resolve(json))
+				.catch(err => reject(new Error(err)));
+		});
+	}
+
+	loadProductData() {
+		this.fetchProductDataFromServer()
+			.then(
+				data => this.setState({ product: data.data.product }),
+			).then(
+				() => this.setState({
+					product: {
+						...this.state.product,
+						data: JSON.parse(this.state.product.data),
+					},
+				}),
+			);
+	}
+
+	postProductDataToServer(data) {
+		return new Promise((resolve, reject) => {
+			window.fetch(this.getApiUrl('post'), {
+				method: 'POST',
+				mode: 'no-cors',
+				body: data,
+			}).then(response => response)
+				.then(json => resolve(json))
+				.catch(err => reject(new Error(err)));
+		});
+	}
+
+	prepareFormData() {
+		const { name, description, data } = this.state.product;
+		const formData = new window.FormData();
+		formData.append('name', name);
+		formData.append('description', description);
+		formData.append('data', JSON.stringify(data));
+		return formData;
+	}
+
+	updateProductData() {
+		return new Promise((resolve, reject) => {
+			const formData = this.prepareFormData();
+			this.postProductDataToServer(formData)
+				.then(result => resolve(result))
+				.catch(err => reject(new Error(err)));
+		});
 	}
 
 	handleProductNameChange(e) {
@@ -37,94 +103,170 @@ class Product extends Component {
 		});
 	}
 
-	postDataToServer() {
-		return new Promise((resolve, reject) => {
-			const url = `http://challenge.eliteworks.com/product/set?api_key=${this.state.apiKey}`;
-			const { name, description } = this.state.product;
-			const data = JSON.stringify({ name, description });
-
-			window.fetch(url, {
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-				method: 'POST',
-				body: data,
-			}).then(
-				response => response.json(),
-			).then(
-				json => resolve(json),
-			).catch(
-				err => reject(new Error(err)),
-			);
+	handleProductDescriptionChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				description: e.target.value,
+			},
 		});
 	}
 
-	saveProductChanges(e) {
-		e.preventDefault();
-
-		this.postDataToServer().then(
-			(result) => {
-				console.info(result);
+	handleProductSizeChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					size: e.target.value,
+				},
 			},
-		);
+		});
+	}
+
+	handleProductImageUrlChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					imageUrl: e.target.value,
+				},
+			},
+		});
+	}
+
+	handleProductFortificationsChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					fortifications: e.target.value,
+				},
+			},
+		});
+	}
+
+	handleEditFormSubmit(e) {
+		e.preventDefault();
+		this.updateProductData()
+			.then((result) => {
+				console.info(result);
+				this.toggleEditMode();
+				this.loadProductData();
+			})
+			.catch(err => console.error(err));
+	}
+
+	toggleEditMode() {
+		this.setState({ editMode: !this.state.editMode });
+	}
+
+	cancelEdits() {
+		this.loadProductData();
+		this.toggleEditMode();
 	}
 
 	render() {
-		const { product_id, description, name, data, api_key, created_at,
-			updated_at } = this.state.product;
+		let message;
+		if (this.state.fetchError) {
+			message = (
+				<Message type="error" title="Error" content={this.state.message} />
+			);
+		}
+		if (!this.state.fetchError && (this.state.message.length > 0)) {
+			message = (
+				<Message type="info" title="Info" content={this.state.message} />
+			);
+		}
 
-		const productWindow = this.state.editMode ? (
-			<div className="p1">
-				<form onSubmit={this.saveProductChanges}>
-					<input
-						type="text"
-						value={this.state.product.name}
-						onChange={this.handleProductNameChange}
-					/>
-					<div>{description}</div>
-					<div>{JSON.stringify(data)}</div>
+		const { name, description, data } = this.state.product;
+		const { size, imageUrl, fortifications } = data;
+
+		const productInfo = this.state.editMode ? (
+			<div>
+				<form onSubmit={this.handleEditFormSubmit}>
 					<div>
-						<button type="submit">Save</button>
-						<button onClick={this.reloadProductInfo}>Cancel</button>
+						<input
+							type="text"
+							value={name}
+							onChange={this.handleProductNameChange}
+						/>
+					</div>
+					<div>
+						<textarea
+							onChange={this.handleProductDescriptionChange}
+							value={description}
+						/>
+					</div>
+					<div>
+						<input
+							type="text"
+							value={size}
+							onChange={this.handleProductSizeChange}
+						/>
+					</div>
+					<div>
+						<input
+							type="text"
+							value={imageUrl}
+							onChange={this.handleProductImageUrlChange}
+						/>
+					</div>
+					<div>
+						<input
+							type="text"
+							value={fortifications}
+							onChange={this.handleProductFortificationsChange}
+						/>
+					</div>
+					<div>
+						<button type="submit">Save Changes</button>
+						<button onClick={this.cancelEdits}>Cancel</button>
 					</div>
 				</form>
 			</div>
 		) : (
-			<div className="p1">
-				{name}<br />
-				{description}<br />
-				{JSON.stringify(data)}<br />
+			<div>
+				<div className="p1">
+					<h2 className="m0">{name}</h2>
+				</div>
+
+				<div className="flex mb2">
+					<div className="p1 flex-grow" style={{ width: '12rem' }}>
+						<img src={imageUrl} alt={name} className="full-width" />
+					</div>
+					<div className="flex-auto px2">{description}</div>
+				</div>
+
+				<div className="flex size-sm p1 border-bottom border-gray-lighter">
+					<div className="bold caps" style={{ width: '8rem' }}>
+						Size
+					</div>
+					<div className="flex-auto">{size}</div>
+				</div>
+
+				<div className="flex size-sm p1">
+					<div className="bold caps" style={{ width: '8rem' }}>
+						Fortifications
+					</div>
+					<div className="flex-auto">{fortifications}</div>
+				</div>
+
+				<div>
+					<button onClick={this.toggleEditMode}>Edit Product</button>
+				</div>
 			</div>
 		);
 
-		let editButton;
-		if (!this.state.editMode) {
-			editButton = (
-				<div>
-					<button onClick={this.enterEditMode}>Edit</button>
-				</div>
-			);
-		}
-
 		return (
 			<div className="m1 border p1">
-				<div className="bold size-lg caps">Product</div>
-				{productWindow}
-				<div className="p1 size-sm">
-					Product ID: {product_id}<br />
-					Created {created_at}<br />
-					Fetched using API key {api_key}<br />
-					Last updated {updated_at}<br />
-				</div>
-				{editButton}
+				{message}
+				{productInfo}
 			</div>
 		);
 	}
 }
-Product.propTypes = {
-	data: PropTypes.shape().isRequired,
-	refreshProduct: PropTypes.func.isRequired,
-};
 
 export default Product;
