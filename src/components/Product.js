@@ -4,8 +4,19 @@ import 'whatwg-fetch';
 
 import credentials from '../config/credentials';
 import Message from './Message';
+import ViewProduct from './ViewProduct';
+import EditProduct from './EditProduct';
 
 class Product extends Component {
+	static prepareFormData(inputData) {
+		const { name, description, data } = inputData;
+		const formData = new window.FormData();
+		formData.append('name', name);
+		formData.append('description', description);
+		formData.append('data', JSON.stringify(data));
+		return formData;
+	}
+
 	constructor() {
 		super();
 		this.state = {
@@ -20,11 +31,6 @@ class Product extends Component {
 
 		this.toggleEditMode = this.toggleEditMode.bind(this);
 		this.cancelEdits = this.cancelEdits.bind(this);
-		this.handleProductNameChange = this.handleProductNameChange.bind(this);
-		this.handleProductDescriptionChange = this.handleProductDescriptionChange.bind(this);
-		this.handleProductSizeChange = this.handleProductSizeChange.bind(this);
-		this.handleProductImageUrlChange = this.handleProductImageUrlChange.bind(this);
-		this.handleProductFortificationsChange = this.handleProductFortificationsChange.bind(this);
 		this.handleEditFormSubmit = this.handleEditFormSubmit.bind(this);
 	}
 
@@ -76,87 +82,13 @@ class Product extends Component {
 		});
 	}
 
-	prepareFormData() {
-		const { name, description, data } = this.state.product;
-		const formData = new window.FormData();
-		formData.append('name', name);
-		formData.append('description', description);
-		formData.append('data', JSON.stringify(data));
-		return formData;
-	}
-
-	updateProductData() {
+	updateProductData(data) {
 		return new Promise((resolve, reject) => {
-			const formData = this.prepareFormData();
+			const formData = Product.prepareFormData(data);
 			this.postProductDataToServer(formData)
 				.then(result => resolve(result))
 				.catch(err => reject(new Error(err)));
 		});
-	}
-
-	handleProductNameChange(e) {
-		this.setState({
-			product: {
-				...this.state.product,
-				name: e.target.value,
-			},
-		});
-	}
-
-	handleProductDescriptionChange(e) {
-		this.setState({
-			product: {
-				...this.state.product,
-				description: e.target.value,
-			},
-		});
-	}
-
-	handleProductSizeChange(e) {
-		this.setState({
-			product: {
-				...this.state.product,
-				data: {
-					...this.state.product.data,
-					size: e.target.value,
-				},
-			},
-		});
-	}
-
-	handleProductImageUrlChange(e) {
-		this.setState({
-			product: {
-				...this.state.product,
-				data: {
-					...this.state.product.data,
-					imageUrl: e.target.value,
-				},
-			},
-		});
-	}
-
-	handleProductFortificationsChange(e) {
-		this.setState({
-			product: {
-				...this.state.product,
-				data: {
-					...this.state.product.data,
-					fortifications: e.target.value,
-				},
-			},
-		});
-	}
-
-	handleEditFormSubmit(e) {
-		e.preventDefault();
-		this.updateProductData()
-			.then((result) => {
-				console.info(result);
-				this.toggleEditMode();
-				this.loadProductData();
-			})
-			.catch(err => console.error(err));
 	}
 
 	toggleEditMode() {
@@ -166,6 +98,15 @@ class Product extends Component {
 	cancelEdits() {
 		this.loadProductData();
 		this.toggleEditMode();
+	}
+
+	handleEditFormSubmit(data) {
+		this.updateProductData(data)
+			.then(() => {
+				this.toggleEditMode();
+				this.loadProductData();
+			})
+			.catch(err => console.error(err));
 	}
 
 	render() {
@@ -181,83 +122,17 @@ class Product extends Component {
 			);
 		}
 
-		const { name, description, data } = this.state.product;
-		const { size, imageUrl, fortifications } = data;
-
 		const productInfo = this.state.editMode ? (
-			<div>
-				<form onSubmit={this.handleEditFormSubmit}>
-					<div>
-						<input
-							type="text"
-							value={name}
-							onChange={this.handleProductNameChange}
-						/>
-					</div>
-					<div>
-						<textarea
-							onChange={this.handleProductDescriptionChange}
-							value={description}
-						/>
-					</div>
-					<div>
-						<input
-							type="text"
-							value={size}
-							onChange={this.handleProductSizeChange}
-						/>
-					</div>
-					<div>
-						<input
-							type="text"
-							value={imageUrl}
-							onChange={this.handleProductImageUrlChange}
-						/>
-					</div>
-					<div>
-						<input
-							type="text"
-							value={fortifications}
-							onChange={this.handleProductFortificationsChange}
-						/>
-					</div>
-					<div>
-						<button type="submit">Save Changes</button>
-						<button onClick={this.cancelEdits}>Cancel</button>
-					</div>
-				</form>
-			</div>
+			<EditProduct
+				productData={this.state.product}
+				handleCancel={this.cancelEdits}
+				handleSubmit={this.handleEditFormSubmit}
+			/>
 		) : (
-			<div>
-				<div className="p1">
-					<h2 className="m0">{name}</h2>
-				</div>
-
-				<div className="flex mb2">
-					<div className="p1 flex-grow" style={{ width: '12rem' }}>
-						<img src={imageUrl} alt={name} className="full-width" />
-					</div>
-					<div className="flex-auto px2">{description}</div>
-				</div>
-
-				<div className="flex size-sm p1 border-bottom border-gray-lighter">
-					<div className="bold caps" style={{ width: '8rem' }}>
-						Size
-					</div>
-					<div className="flex-auto">{size}</div>
-				</div>
-
-				<div className="flex size-sm p1">
-					<div className="bold caps" style={{ width: '8rem' }}>
-						Fortifications
-					</div>
-					<div className="flex-auto">{fortifications}</div>
-				</div>
-
-				<div>
-					<button onClick={this.toggleEditMode}>Edit Product</button>
-				</div>
-			</div>
+			<ViewProduct
+				productData={this.state.product}
+				toggleEditMode={this.toggleEditMode}
+			/>
 		);
 
 		return (
