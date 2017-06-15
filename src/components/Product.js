@@ -15,13 +15,16 @@ class Product extends Component {
 			isFetching: false,
 			message: '',
 			productLoaded: false,
-			product: {},
+			product: { data: {} },
 		};
 
 		this.toggleEditMode = this.toggleEditMode.bind(this);
 		this.cancelEdits = this.cancelEdits.bind(this);
 		this.handleProductNameChange = this.handleProductNameChange.bind(this);
 		this.handleProductDescriptionChange = this.handleProductDescriptionChange.bind(this);
+		this.handleProductSizeChange = this.handleProductSizeChange.bind(this);
+		this.handleProductImageUrlChange = this.handleProductImageUrlChange.bind(this);
+		this.handleProductFortificationsChange = this.handleProductFortificationsChange.bind(this);
 		this.handleEditFormSubmit = this.handleEditFormSubmit.bind(this);
 	}
 
@@ -48,9 +51,17 @@ class Product extends Component {
 	}
 
 	loadProductData() {
-		this.fetchProductDataFromServer().then(
-			data => this.setState({ product: data.data.product }),
-		);
+		this.fetchProductDataFromServer()
+			.then(
+				data => this.setState({ product: data.data.product }),
+			).then(
+				() => this.setState({
+					product: {
+						...this.state.product,
+						data: JSON.parse(this.state.product.data),
+					},
+				}),
+			);
 	}
 
 	postProductDataToServer(data) {
@@ -66,10 +77,11 @@ class Product extends Component {
 	}
 
 	prepareFormData() {
-		const { name, description } = this.state.product;
+		const { name, description, data } = this.state.product;
 		const formData = new window.FormData();
 		formData.append('name', name);
 		formData.append('description', description);
+		formData.append('data', JSON.stringify(data));
 		return formData;
 	}
 
@@ -96,6 +108,42 @@ class Product extends Component {
 			product: {
 				...this.state.product,
 				description: e.target.value,
+			},
+		});
+	}
+
+	handleProductSizeChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					size: e.target.value,
+				},
+			},
+		});
+	}
+
+	handleProductImageUrlChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					imageUrl: e.target.value,
+				},
+			},
+		});
+	}
+
+	handleProductFortificationsChange(e) {
+		this.setState({
+			product: {
+				...this.state.product,
+				data: {
+					...this.state.product.data,
+					fortifications: e.target.value,
+				},
 			},
 		});
 	}
@@ -134,6 +182,7 @@ class Product extends Component {
 		}
 
 		const { name, description, data } = this.state.product;
+		const { size, imageUrl, fortifications } = data;
 
 		const productInfo = this.state.editMode ? (
 			<div>
@@ -141,18 +190,37 @@ class Product extends Component {
 					<div>
 						<input
 							type="text"
-							value={this.state.product.name}
+							value={name}
 							onChange={this.handleProductNameChange}
+						/>
+					</div>
+					<div>
+						<textarea
+							onChange={this.handleProductDescriptionChange}
+							value={description}
 						/>
 					</div>
 					<div>
 						<input
 							type="text"
-							value={this.state.product.description}
-							onChange={this.handleProductDescriptionChange}
+							value={size}
+							onChange={this.handleProductSizeChange}
 						/>
 					</div>
-					<div>{JSON.stringify(data)}</div>
+					<div>
+						<input
+							type="text"
+							value={imageUrl}
+							onChange={this.handleProductImageUrlChange}
+						/>
+					</div>
+					<div>
+						<input
+							type="text"
+							value={fortifications}
+							onChange={this.handleProductFortificationsChange}
+						/>
+					</div>
 					<div>
 						<button type="submit">Save Changes</button>
 						<button onClick={this.cancelEdits}>Cancel</button>
@@ -161,9 +229,29 @@ class Product extends Component {
 			</div>
 		) : (
 			<div>
-				<div>{name}</div>
-				<div>{description}</div>
-				<div>{JSON.stringify(data)}</div>
+				<h2>{name}</h2>
+
+				<div className="flex mb2">
+					<div className="p1 flex-grow" style={{ width: '12rem' }}>
+						<img src={imageUrl} alt={name} className="full-width" />
+					</div>
+					<div className="flex-auto px2">{description}</div>
+				</div>
+
+				<div className="flex">
+					<div className="bold caps" style={{ width: '9rem' }}>
+						Size
+					</div>
+					<div className="flex-auto">{size}</div>
+				</div>
+
+				<div className="flex">
+					<div className="bold caps" style={{ width: '9rem' }}>
+						Fortifications
+					</div>
+					<div className="flex-auto">{fortifications}</div>
+				</div>
+
 				<div>
 					<button onClick={this.toggleEditMode}>Edit Product</button>
 				</div>
@@ -173,7 +261,6 @@ class Product extends Component {
 		return (
 			<div className="m1 border p1">
 				{message}
-				<div className="bold size-lg caps">Product</div>
 				{productInfo}
 			</div>
 		);
