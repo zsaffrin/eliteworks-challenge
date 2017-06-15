@@ -7,7 +7,9 @@ require('../styles/App.scss');
 
 const App = () => (
 	<div id="app">
-		<h1>EliteWorks Challenge</h1>
+		<div className="p1">
+			<h1 className="m0">EliteWorks Hiring Challenge</h1>
+		</div>
 		<Product />
 	</div>
 );
