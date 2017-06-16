@@ -19,7 +19,11 @@ const ViewProduct = (props) => {
 
 				<div className="flex mb2">
 					<div className="p1 flex-grow" style={{ width: '12rem' }}>
-						<img src={imageUrl} alt={name} className="full-width" />
+						<img
+							src={imageUrl}
+							alt={name}
+							className="full-width border border-gray-light rounded"
+						/>
 					</div>
 					<div className="flex-auto px2">{description}</div>
 				</div>
@@ -45,7 +49,7 @@ const ViewProduct = (props) => {
 					<div className="flex-auto">{features}</div>
 				</div>
 
-				<div className="mt3 p1 right">
+				<div className="mt3 p1 flex flex-just-end">
 					<Button label="Edit Product" action={props.toggleEditMode} />
 				</div>
 			</div>

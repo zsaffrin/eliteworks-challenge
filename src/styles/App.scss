@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:700|Open+Sans:400,700');
 
+$background-color: #ecf9f9;
+
+:root {
+	background: $background-color;
+}
+
 :root,
 .font-body {
 	font-family: 'Open Sans', sans-serif;

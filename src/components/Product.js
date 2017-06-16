@@ -31,7 +31,7 @@ class Product extends Component {
 		};
 
 		this.toggleEditMode = this.toggleEditMode.bind(this);
-		this.cancelEdits = this.cancelEdits.bind(this);
+		this.clearEditMode = this.clearEditMode.bind(this);
 		this.handleEditFormSubmit = this.handleEditFormSubmit.bind(this);
 	}
 
@@ -91,17 +91,14 @@ class Product extends Component {
 		this.setState({ editMode: !this.state.editMode });
 	}
 
-	cancelEdits() {
-		this.loadProductData();
+	clearEditMode() {
 		this.toggleEditMode();
+		this.loadProductData();
 	}
 
 	handleEditFormSubmit(data) {
 		this.updateProductData(data)
-			.then(() => {
-				this.toggleEditMode();
-				this.loadProductData();
-			})
+			.then(() => this.clearEditMode())
 			.catch(err => console.error(err));
 	}
 
@@ -109,7 +106,7 @@ class Product extends Component {
 		const productInfo = this.state.editMode ? (
 			<EditProduct
 				productData={this.state.product}
-				handleCancel={this.cancelEdits}
+				handleCancel={this.clearEditMode}
 				handleSubmit={this.handleEditFormSubmit}
 			/>
 		) : (
@@ -120,7 +117,7 @@ class Product extends Component {
 		);
 
 		return (
-			<div className="m1 border border-gray-light rounder p1">
+			<div className="m1 bg-white border border-gray-light rounder p1">
 				{productInfo}
 			</div>
 		);

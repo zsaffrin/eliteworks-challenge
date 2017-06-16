@@ -135,15 +135,15 @@ class EditProduct extends Component {
 							/>
 						);
 					})}
-					<div className="flex flex-wrap p1">
-						<div className="p1">
+					<div className="mt2 flex p1">
+						<div className="pr1">
 							<Button
 								label="Save Changes"
 								type="action"
 								action={this.handleFormSubmit}
 							/>
 						</div>
-						<div className="p1">
+						<div className="pr1">
 							<Button
 								label="Cancel"
 								action={this.props.handleCancel}
