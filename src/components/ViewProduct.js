@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Button from './Button';
+
 const ViewProduct = (props) => {
 	const { name, description, data } = props.productData;
 	const { color, features, imageUrl, price, size } = data;
@@ -43,8 +45,8 @@ const ViewProduct = (props) => {
 					<div className="flex-auto">{features}</div>
 				</div>
 
-				<div>
-					<button onClick={props.toggleEditMode}>Edit Product</button>
+				<div className="mt3 p1 right">
+					<Button label="Edit Product" action={props.toggleEditMode} />
 				</div>
 			</div>
 		</div>

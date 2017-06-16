@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import Button from './Button';
 import FormInput from './FormInput';
 
 class EditProduct extends Component {
@@ -55,7 +56,7 @@ class EditProduct extends Component {
 			price,
 			size,
 		} = this.state;
-		
+
 		const payload = {
 			name,
 			description,
@@ -134,9 +135,20 @@ class EditProduct extends Component {
 							/>
 						);
 					})}
-					<div className="p1">
-						<button type="submit">Save Changes</button>
-						<button onClick={this.props.handleCancel}>Cancel</button>
+					<div className="flex flex-wrap p1">
+						<div className="p1">
+							<Button
+								label="Save Changes"
+								type="action"
+								action={this.handleFormSubmit}
+							/>
+						</div>
+						<div className="p1">
+							<Button
+								label="Cancel"
+								action={this.props.handleCancel}
+							/>
+						</div>
 					</div>
 				</form>
 			</div>

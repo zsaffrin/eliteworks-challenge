@@ -1,6 +1,6 @@
 {
   "name": "eliteworks-challenge",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "API consumption coding challenge for EliteWorks hiring process",
   "scripts": {
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js",
