@@ -4,7 +4,8 @@
   "description": "API consumption coding challenge for EliteWorks hiring process",
   "scripts": {
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js",
-    "start": "node server.js"
+    "start": "node server.js",
+		"prod-start": "NODE_ENV=production PORT=3013 node server.js"
   },
   "repository": {
     "type": "git",
