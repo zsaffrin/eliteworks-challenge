@@ -9,10 +9,25 @@ const App = () => (
 	<div id="app">
 		<div className="p1">
 			<h1 className="m0">EliteWorks Hiring Challenge</h1>
-			<p>
-				A React app that can Get and Post to a product item by consuming the
-				EliteWorks API
-			</p>
+
+			<div className="flex flex-center">
+				<div>
+					A React app that can Get and Post to a product item by consuming the
+					EliteWorks API
+				</div>
+				<div className="flex-grow px1 size-sm">
+					-&nbsp;
+					<a
+						href="https://github.com/zsaffrin/eliteworks-challenge"
+						target="_blank"
+						rel="noreferrer noopener"
+						className="red hover-green"
+					>
+						Source on GitHub
+					</a>
+				</div>
+			</div>
+
 			<div className="flex flex-center">
 				<div>
 					Built by&nbsp;
@@ -25,18 +40,22 @@ const App = () => (
 						Zach Saffrin
 					</a>
 				</div>
+
 				<div className="flex-grow px1 size-sm">
 					&lt;&nbsp;
 					<a
 						href="mailto:zach.saffrin@gmail.com"
 						className="red hover-underline hover-green"
 					>
-						zach.saffrin@gmail.com
+						zach.saffrin
+						<span className="display-none">NoBots</span>
+						@gmail
+						<span className="display-none">NoBots</span>
+						.com
 					</a>
 					&nbsp;&gt;
 				</div>
 			</div>
-
 		</div>
 		<div className="p2">
 			<div className="container">
