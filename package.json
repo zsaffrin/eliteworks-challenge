@@ -18,14 +18,12 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "font-awesome": "^4.7.0",
     "http-proxy": "^1.16.2",
     "overeasy": "^5.0.0",
     "promise-polyfill": "^6.0.2",
     "prop-types": "^15.5.10",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
-    "react-router-dom": "^4.1.1",
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5",
     "whatwg-fetch": "^2.0.3"
