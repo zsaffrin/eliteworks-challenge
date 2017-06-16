@@ -3,7 +3,6 @@ import Promise from 'promise-polyfill';
 import 'whatwg-fetch';
 
 import credentials from '../config/credentials';
-import Message from './Message';
 import ViewProduct from './ViewProduct';
 import EditProduct from './EditProduct';
 
@@ -28,10 +27,6 @@ class Product extends Component {
 		this.state = {
 			apiKey: credentials.eliteworksApiKey,
 			editMode: false,
-			fetchError: false,
-			isFetching: false,
-			message: '',
-			productLoaded: false,
 			product: { data: {} },
 		};
 
@@ -58,7 +53,7 @@ class Product extends Component {
 			window.fetch(this.getApiUrl('get'), { method: 'GET' })
 				.then(response => response.json())
 				.then(json => resolve(json))
-				.catch(err => reject(new Error(err)));
+				.catch(err => reject(console.error(err)));
 		});
 	}
 
@@ -79,7 +74,7 @@ class Product extends Component {
 				body: data,
 			}).then(response => response)
 				.then(json => resolve(json))
-				.catch(err => reject(new Error(err)));
+				.catch(err => reject(console.error(err)));
 		});
 	}
 
@@ -88,7 +83,7 @@ class Product extends Component {
 			const formData = Product.prepareFormData(data);
 			this.postProductDataToServer(formData)
 				.then(result => resolve(result))
-				.catch(err => reject(new Error(err)));
+				.catch(err => reject(console.error(err)));
 		});
 	}
 
@@ -111,18 +106,6 @@ class Product extends Component {
 	}
 
 	render() {
-		let message;
-		if (this.state.fetchError) {
-			message = (
-				<Message type="error" title="Error" content={this.state.message} />
-			);
-		}
-		if (!this.state.fetchError && (this.state.message.length > 0)) {
-			message = (
-				<Message type="info" title="Info" content={this.state.message} />
-			);
-		}
-
 		const productInfo = this.state.editMode ? (
 			<EditProduct
 				productData={this.state.product}
@@ -138,7 +121,6 @@ class Product extends Component {
 
 		return (
 			<div className="m1 border border-gray-light rounder p1">
-				{message}
 				{productInfo}
 			</div>
 		);
