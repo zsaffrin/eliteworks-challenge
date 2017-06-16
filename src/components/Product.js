@@ -8,6 +8,12 @@ import ViewProduct from './ViewProduct';
 import EditProduct from './EditProduct';
 
 class Product extends Component {
+	static parseDataFieldInProduct(product) {
+		const fixedProduct = Object.assign({}, product);
+		fixedProduct.data = JSON.parse(fixedProduct.data);
+		return fixedProduct;
+	}
+
 	static prepareFormData(inputData) {
 		const { name, description, data } = inputData;
 		const formData = new window.FormData();
@@ -59,14 +65,9 @@ class Product extends Component {
 	loadProductData() {
 		this.fetchProductDataFromServer()
 			.then(
-				data => this.setState({ product: data.data.product }),
+				data => Product.parseDataFieldInProduct(data.data.product),
 			).then(
-				() => this.setState({
-					product: {
-						...this.state.product,
-						data: JSON.parse(this.state.product.data),
-					},
-				}),
+				product => this.setState({ product }),
 			);
 	}
 
@@ -136,7 +137,7 @@ class Product extends Component {
 		);
 
 		return (
-			<div className="m1 border p1">
+			<div className="m1 border border-gray-light rounder p1">
 				{message}
 				{productInfo}
 			</div>

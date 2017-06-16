@@ -7,11 +7,12 @@ class EditProduct extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: '',
+			color: '',
+			desription: '',
+			features: '',
 			imageUrl: '',
-			description: '',
+			price: '',
 			size: '',
-			fortifications: '',
 		};
 
 		this.handleInputChange = this.handleInputChange.bind(this);
@@ -24,9 +25,17 @@ class EditProduct extends Component {
 
 	mapPropsToState() {
 		const { name, description, data } = this.props.productData;
-		const { fortifications, imageUrl, size } = data;
+		const { color, features, imageUrl, price, size } = data;
 
-		this.setState({ name, imageUrl, description, size, fortifications });
+		this.setState({
+			color,
+			description,
+			features,
+			imageUrl,
+			name,
+			price,
+			size,
+		});
 	}
 
 	handleInputChange(e) {
@@ -37,13 +46,24 @@ class EditProduct extends Component {
 	handleFormSubmit(e) {
 		e.preventDefault();
 
-		const { name, imageUrl, description, size, fortifications } = this.state;
+		const {
+			color,
+			description,
+			features,
+			imageUrl,
+			name,
+			price,
+			size,
+		} = this.state;
+		
 		const payload = {
 			name,
 			description,
 			data: {
-				fortifications,
+				color,
+				features,
 				imageUrl,
+				price,
 				size,
 			},
 		};
@@ -52,47 +72,68 @@ class EditProduct extends Component {
 	}
 
 	render() {
-		const { name, imageUrl, description, size, fortifications } = this.state;
+		const fields = [
+			{
+				label: 'Name',
+				fieldname: 'name',
+				value: this.state.name,
+				type: 'text',
+			},
+			{
+				label: 'Description',
+				fieldname: 'description',
+				value: this.state.description,
+				type: 'textarea',
+			},
+			{
+				label: 'Price',
+				fieldname: 'price',
+				value: this.state.price,
+				type: 'text',
+			},
+			{
+				label: 'Size',
+				fieldname: 'size',
+				value: this.state.size,
+				type: 'text',
+			},
+			{
+				label: 'Color',
+				fieldname: 'color',
+				value: this.state.color,
+				type: 'text',
+			},
+			{
+				label: 'Image URL',
+				fieldname: 'imageUrl',
+				value: this.state.imageUrl,
+				type: 'text',
+			},
+			{
+				label: 'Features',
+				fieldname: 'features',
+				value: this.state.features,
+				type: 'text',
+			},
+		];
 
 		return (
 			<div id="editProduct" className="p1">
 				<h2>Edit Product</h2>
 				<form onSubmit={this.handleFormSubmit}>
-					<FormInput
-						label="Name"
-						name="name"
-						value={name}
-						type="text"
-						onChange={this.handleInputChange}
-					/>
-					<FormInput
-						label="Description"
-						name="description"
-						value={description}
-						type="textarea"
-						onChange={this.handleInputChange}
-					/>
-					<FormInput
-						label="Size"
-						name="size"
-						value={size}
-						type="text"
-						onChange={this.handleInputChange}
-					/>
-					<FormInput
-						label="Image URL"
-						name="imageUrl"
-						value={imageUrl}
-						type="text"
-						onChange={this.handleInputChange}
-					/>
-					<FormInput
-						label="Fortifications"
-						name="fortifications"
-						value={fortifications}
-						type="text"
-						onChange={this.handleInputChange}
-					/>
+					{fields.map((field) => {
+						const { label, fieldname, value, type } = field;
+						return (
+							<FormInput
+								key={fieldname}
+								label={label}
+								name={fieldname}
+								value={value}
+								type={type}
+								onChange={this.handleInputChange}
+							/>
+						);
+					})}
 					<div className="p1">
 						<button type="submit">Save Changes</button>
 						<button onClick={this.props.handleCancel}>Cancel</button>
@@ -106,10 +147,13 @@ EditProduct.propTypes = {
 	productData: PropTypes.shape({
 		name: PropTypes.string,
 		description: PropTypes.string,
-		data: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape(),
-		]),
+		data: PropTypes.shape({
+			color: PropTypes.string,
+			features: PropTypes.string,
+			imageUrl: PropTypes.string,
+			price: PropTypes.string,
+			size: PropTypes.string,
+		}),
 	}),
 	handleCancel: PropTypes.func.isRequired,
 	handleSubmit: PropTypes.func.isRequired,
@@ -118,6 +162,7 @@ EditProduct.defaultProps = {
 	productData: {
 		name: '',
 		description: '',
+		data: {},
 	},
 };
 

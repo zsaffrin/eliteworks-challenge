@@ -3,13 +3,16 @@ import PropTypes from 'prop-types';
 
 const ViewProduct = (props) => {
 	const { name, description, data } = props.productData;
-	const { fortifications, imageUrl, size } = data;
+	const { color, features, imageUrl, price, size } = data;
 
 	return (
 		<div id="viewProduct" className="p1">
 			<div>
-				<div className="p1">
+				<div className="flex p1">
 					<h2 className="m0">{name}</h2>
+					<div className="flex-auto right">
+						<h3 className="m0">{price}</h3>
+					</div>
 				</div>
 
 				<div className="flex mb2">
@@ -19,18 +22,25 @@ const ViewProduct = (props) => {
 					<div className="flex-auto px2">{description}</div>
 				</div>
 
-				<div className="flex size-sm p1 border-bottom border-gray-lighter">
-					<div className="bold caps" style={{ width: '8rem' }}>
+				<div className="flex flex-wrap size-sm p1 border-bottom border-gray-lighter">
+					<div className="bold caps" style={{ width: '6rem' }}>
+						Color
+					</div>
+					<div className="flex-auto">{color}</div>
+				</div>
+
+				<div className="flex flex-wrap size-sm p1 border-bottom border-gray-lighter">
+					<div className="bold caps" style={{ width: '6rem' }}>
 						Size
 					</div>
 					<div className="flex-auto">{size}</div>
 				</div>
 
-				<div className="flex size-sm p1">
-					<div className="bold caps" style={{ width: '8rem' }}>
-						Fortifications
+				<div className="flex flex-wrap size-sm p1">
+					<div className="bold caps" style={{ width: '6rem' }}>
+						Features
 					</div>
-					<div className="flex-auto">{fortifications}</div>
+					<div className="flex-auto">{features}</div>
 				</div>
 
 				<div>
@@ -44,10 +54,13 @@ ViewProduct.propTypes = {
 	productData: PropTypes.shape({
 		name: PropTypes.string,
 		description: PropTypes.string,
-		data: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape(),
-		]),
+		data: PropTypes.shape({
+			color: PropTypes.string,
+			features: PropTypes.string,
+			imageUrl: PropTypes.string,
+			price: PropTypes.string,
+			size: PropTypes.string,
+		}),
 	}),
 	toggleEditMode: PropTypes.func.isRequired,
 };
@@ -55,6 +68,7 @@ ViewProduct.defaultProps = {
 	productData: {
 		name: '',
 		description: '',
+		data: {},
 	},
 };
 

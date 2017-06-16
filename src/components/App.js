@@ -10,7 +10,11 @@ const App = () => (
 		<div className="p1">
 			<h1 className="m0">EliteWorks Hiring Challenge</h1>
 		</div>
-		<Product />
+		<div className="p2">
+			<div className="container">
+				<Product />
+			</div>
+		</div>
 	</div>
 );
 
